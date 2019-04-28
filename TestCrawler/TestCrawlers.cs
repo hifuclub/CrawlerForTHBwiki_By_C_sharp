@@ -14,16 +14,23 @@ namespace TestCrawler
         int previousTrack = 0;
         int trackInt = 0;
         ArrayList albumInfoArray = new ArrayList();
+        string tuneInfo;
 
-
+        //主逻辑
         public string crawler(string url)
         {
             albumInfoArray.Clear();
             Console.Out.WriteLine(url);
-            
             try
             {
                 string[] htmlStr = GetWikiHTML(url);
+                foreach (string s in htmlStr)
+                {
+                    TuneBean tuneBean = StrAssemblyLine(s);
+                    PrintTuneInfo(tuneBean);
+                }
+                Form2 form2 = new Form2(albumInfoArray);
+                form2.Show();
             }
             catch (Exception e)
             {
@@ -31,9 +38,11 @@ namespace TestCrawler
 
                 return DateTime.Now + "  爬取失败";
             }
+
             return DateTime.Now + "  爬取成功";
         }
 
+        //获取网页代码string并提取成曲代码
         private string[] GetWikiHTML(string url) {
             // Create a request for the URL. 		
             WebRequest request = WebRequest.Create(url);
@@ -55,7 +64,7 @@ namespace TestCrawler
             string[] songInfo;
             string knife01 = "曲目列表</span></h2>";
             string knife02 = "评论</span></h2>";
-            string tuneInfo;
+            
             try
             {
                 tuneInfo = cutStrings(responseFromServer, knife01, knife02)[0];
@@ -85,156 +94,146 @@ namespace TestCrawler
             return songInfo;
         
     }
-
         //对字符串进行处理
-        private void StrAssemblyLine(string[] songInfo)
+        private TuneBean StrAssemblyLine(string s)
         {
-            foreach (string s in songInfo)
+            TuneBean tuneBean = new TuneBean();
+
+            
+            string tune = s;
+            int trackInt = 0;
+
+
+            //track
+            Regex trackReg = new Regex(@"^\d{1,3}");
+            string trackString = trackReg.Match(tune).ToString();
+            try
             {
-                bool isTurn = true;
-                bool isOrigin = true;
-                bool isArtist = true;
-                bool isOnlyComposer = false;
-                bool isVoice = false;
-                string tune = s;
-                int trackInt = 0;
-                string title = "";
-                string artist = "";
-                string arrange = "";
-                string composer = "";
-                string voice = "";
-                ArrayList origin = new ArrayList();
+                trackInt = int.Parse(trackString);
+                Console.Out.WriteLine("轨道:" + trackInt);
+            }
+            catch (Exception)
+            {
+                Console.Out.WriteLine("没有获取到序号");
+                tuneBean.isTurn = false;
 
-                //track
-                Regex trackReg = new Regex(@"^\d{1,3}");
-                string trackString = trackReg.Match(tune).ToString();
-                try
+            }
+
+            //title
+            try
+            {
+                tune = cutStrings(tune, "<td", 0);
+                tuneBean.title = cutStrings(tune, "", "</td>")[0];
+
+                Regex cut = new Regex(">[^<]{1,}<");
+                Match titleMatch = cut.Match(tuneBean.title);
+                tuneBean.title = titleMatch.ToString();
+                tuneBean.title = cutStrings(tuneBean.title, ">", "<", 1, 0)[0];
+                //{
+                //    string[] lsSs = cutString(tune, "action=edit\">", "</a>", 13, 0);
+                //    title = lsSs[0];
+                //    tune = lsSs[1];
+                //}
+                //else
+                //{
+                //    string[] lsSs = cutString(tune, "class=\"title\">", "<span class", 14, 0);
+                //    title = lsSs[0];
+                //    tune = lsSs[1];
+                //}
+                Console.Out.WriteLine("曲名:" + tuneBean.title);
+
+            }
+            catch (Exception)
+            {
+
+                Console.Out.WriteLine("没有获取到标题");
+                tuneBean.isTurn = false;
+
+            }
+            if (tuneBean.isTurn)
+            {
+                if (Regex.IsMatch(tune, "配音"))
                 {
-                    trackInt = int.Parse(trackString);
-                    Console.Out.WriteLine("轨道:" + trackInt);
-                }
-                catch (Exception)
-                {
-                    Console.Out.WriteLine("没有获取到序号");
-                    isTurn = false;
-
-                }
-
-                //title
-                try
-                {
-                    tune = cutStrings(tune, "<td", 0);
-                    title = cutStrings(tune, "", "</td>")[0];
-
-                    Regex cut = new Regex(">[^<]{1,}<");
-                    Match titleMatch = cut.Match(title);
-                    title = titleMatch.ToString();
-                    title = cutStrings(title, ">", "<", 1, 0)[0];
-                    //{
-                    //    string[] lsSs = cutString(tune, "action=edit\">", "</a>", 13, 0);
-                    //    title = lsSs[0];
-                    //    tune = lsSs[1];
-                    //}
-                    //else
-                    //{
-                    //    string[] lsSs = cutString(tune, "class=\"title\">", "<span class", 14, 0);
-                    //    title = lsSs[0];
-                    //    tune = lsSs[1];
-                    //}
-                    Console.Out.WriteLine("曲名:" + title);
-
-                }
-                catch (Exception)
-                {
-
-                    Console.Out.WriteLine("没有获取到标题");
-                    isTurn = false;
-
-                }
-                if (isTurn)
-                {
-                    if (Regex.IsMatch(tune, "配音"))
+                    tune = cutStrings(tune, "配音", 0);
+                    tuneBean.voice = cutStrings(tune, "", "</td></tr>")[0];
+                    tune = cutStrings(tune, "配音", "</td></tr>")[1];
+                    tuneBean.voice = cutTags(tuneBean.voice);
+                    tuneBean.voice = tuneBean.voice.Replace("（页面不存在）", "");
+                    Console.Out.WriteLine("配音:" + tuneBean.voice);
+                    string ls = "";
+                    for (; Regex.IsMatch(tuneBean.voice, "（"); ls += ";")
                     {
-                        tune = cutStrings(tune, "配音", 0);
-                        voice = cutStrings(tune, "", "</td></tr>")[0];
-                        tune = cutStrings(tune, "配音", "</td></tr>")[1];
-                        voice = cutTags(voice);
-                        voice = voice.Replace("（页面不存在）", "");
-                        Console.Out.WriteLine("配音:" + voice);
-                        string ls = "";
-                        for (; Regex.IsMatch(voice, "（"); ls += ";")
+                        ls += cutStrings(tuneBean.voice, "（", "）", 1, 0)[0];
+                        tuneBean.voice = cutStrings(tuneBean.voice, "）", 1);
+                        Console.Out.WriteLine(tuneBean.voice);
+                    }
+                    tuneBean.voice = ls;
+                    tuneBean.voice = tuneBean.voice.Remove(tuneBean.voice.Length - 1);
+                    tuneBean.isVoice = true;
+                }
+                else if (Regex.IsMatch(tune, "演唱"))
+                {
+                    tune = cutStrings(tune, "演唱", 0);
+                    tuneBean.artist = cutStrings(tune, "", "</td></tr>")[0];
+                    tune = cutStrings(tune, "演唱", "</td></tr>")[1];
+                    tuneBean.artist = cutTags(tuneBean.artist);
+                    tuneBean.artist = tuneBean.artist.Replace("（页面不存在）", "");
+                    Console.Out.WriteLine("演唱:" + tuneBean.artist);
+
+                }
+                else if (Regex.IsMatch(tune, "编曲"))
+                {
+                    tune = cutStrings(tune, "编曲", 0);
+                    tuneBean.arrange = cutStrings(tune, "", "</td></tr>")[0];
+                    tune = cutStrings(tune, "编曲", "</td></tr>")[1];
+                    tuneBean.arrange = cutTags(tuneBean.arrange);
+                    tuneBean.arrange = tuneBean.arrange.Replace("（页面不存在）", "");
+                    Console.Out.WriteLine("编曲:" + tuneBean.arrange);
+                    tuneBean.isArtist = false;
+                }
+                else if (Regex.IsMatch(tune, "作曲"))
+                {
+                    tune = cutStrings(tune, "作曲", 0);
+                    tuneBean.composer = cutStrings(tune, "", "</td></tr>")[0];
+                    tune = cutStrings(tune, "作曲", "</td></tr>")[1];
+                    tuneBean.composer = cutTags(tuneBean.composer);
+                    tuneBean.composer = tuneBean.composer.Replace("（页面不存在）", "");
+                    Console.Out.WriteLine("作曲:" + tuneBean.composer);
+                    tuneBean.isArtist = false;
+                    tuneBean.isOnlyComposer = true;
+                }
+                if (Regex.IsMatch(tune, "原曲"))
+                {
+                    Console.Out.WriteLine("原曲:");
+                    for (; Regex.IsMatch(tune, "ogmusic");)
+                    {
+                        tune = cutStrings(tune, "ogmusic", 0);
+                        tune = cutStrings(tune, "title=\"", 7);
+                        if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
                         {
-                            ls += cutStrings(voice, "（", "）", 1, 0)[0];
-                            voice = cutStrings(voice, "）", 1);
-                            Console.Out.WriteLine(voice);
-                        }
-                        voice = ls;
-                        voice = voice.Remove(voice.Length - 1);
-                        isVoice = true;
-                    }
-                    else if (Regex.IsMatch(tune, "演唱"))
-                    {
-                        tune = cutStrings(tune, "演唱", 0);
-                        artist = cutStrings(tune, "", "</td></tr>")[0];
-                        tune = cutStrings(tune, "演唱", "</td></tr>")[1];
-                        artist = cutTags(artist);
-                        artist = artist.Replace("（页面不存在）", "");
-                        Console.Out.WriteLine("演唱:" + artist);
+                            Console.Out.WriteLine(tune);
 
-                    }
-                    else if (Regex.IsMatch(tune, "编曲"))
-                    {
-                        tune = cutStrings(tune, "编曲", 0);
-                        arrange = cutStrings(tune, "", "</td></tr>")[0];
-                        tune = cutStrings(tune, "编曲", "</td></tr>")[1];
-                        arrange = cutTags(arrange);
-                        arrange = arrange.Replace("（页面不存在）", "");
-                        Console.Out.WriteLine("编曲:" + arrange);
-                        isArtist = false;
-                    }
-                    else if (Regex.IsMatch(tune, "作曲"))
-                    {
-                        tune = cutStrings(tune, "作曲", 0);
-                        composer = cutStrings(tune, "", "</td></tr>")[0];
-                        tune = cutStrings(tune, "作曲", "</td></tr>")[1];
-                        composer = cutTags(composer);
-                        composer = composer.Replace("（页面不存在）", "");
-                        Console.Out.WriteLine("作曲:" + composer);
-                        isArtist = false;
-                        isOnlyComposer = true;
-                    }
-                    if (Regex.IsMatch(tune, "原曲"))
-                    {
-                        Console.Out.WriteLine("原曲:");
-                        for (; Regex.IsMatch(tune, "ogmusic");)
-                        {
-                            tune = cutStrings(tune, "ogmusic", 0);
-                            tune = cutStrings(tune, "title=\"", 7);
-                            if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
-                            {
-                                Console.Out.WriteLine(tune);
-
-                            }
-                            string onriginTurn = Regex.Split(tune, "\">")[0];
-                            origin.Add(onriginTurn);
-                            Console.Out.WriteLine(onriginTurn);
                         }
-                    }
-                    else
-                    {
-                        isOrigin = false;
+                        string onriginTurn = Regex.Split(tune, "\">")[0];
+                        tuneBean.origin.Add(onriginTurn);
+                        Console.Out.WriteLine(onriginTurn);
                     }
                 }
+                else
+                {
+                    tuneBean.isOrigin = false;
+                }
+
 
                 Console.Out.WriteLine("next\n");
 
-               
-            }
 
+            }
+            return tuneBean;
         }
         //打印歌曲信息
-        private void PrintTuneInfo(bool isTurn,bool isVoice,bool isArtist,bool isOnlyComposer) {
-            if (isTurn)
+        private void PrintTuneInfo(TuneBean tuneBean) {
+            if (tuneBean.isTurn)
             {
                 string tune;
                 if (previousTrack > trackInt)
@@ -245,27 +244,27 @@ namespace TestCrawler
                 {
                     tune = "";
                 }
-                if (isVoice)
+                if (tuneBean.isVoice)
                 {
 
-                    tune = tune + trackInt + "." + title + "【歌手】" + voice;
+                    tune = tune + trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.voice;
                 }
-                else if (isArtist)
+                else if (tuneBean.isArtist)
                 {
-                    tune = tune + trackInt + "." + title + "【歌手】" + artist;
+                    tune = tune + trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.artist;
                 }
-                else if (isOnlyComposer)
+                else if (tuneBean.isOnlyComposer)
                 {
-                    tune = tune + trackInt + "." + title + "【作曲】" + composer;
+                    tune = tune + trackInt + "." + tuneBean.title + "【作曲】" + tuneBean.composer;
                 }
                 else
                 {
-                    tune = tune + trackInt + "." + title + "【编曲】" + arrange;
+                    tune = tune + trackInt + "." + tuneBean.title + "【编曲】" + tuneBean.arrange;
                 }
-                if (isOrigin)
+                if (tuneBean.isOrigin)
                 {
                     tune = tune + "【副标题】原曲：";
-                    foreach (string og in origin)
+                    foreach (string og in tuneBean.origin)
                     {
                         tune = tune + og + " / ";
                     }
@@ -289,12 +288,11 @@ namespace TestCrawler
             File.WriteAllLines("专辑信息.txt", albumInfoString);
             File.WriteAllText("爬取.html", tuneInfo);
 
-            Form2 form2 = new Form2(albumInfoArray);
-            form2.Show();
+
         }
         
 
-
+        //裁剪函数
         public string[] cutStrings(string s, string cut1, string cut2)
         {
             string[] returnString=new string[2];
