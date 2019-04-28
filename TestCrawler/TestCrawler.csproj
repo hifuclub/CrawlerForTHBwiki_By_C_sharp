@@ -94,9 +94,6 @@
     <Content Include="bin\Debug\TestCrawler.exe" />
     <Content Include="bin\Debug\TestCrawler.pdb" />
     <Content Include="bin\Debug\专辑信息.txt" />
-    <Content Include="bin\Debug\爬取.html" />
-    <Content Include="bin\爬取 - 副本 - 副本 %282%29.html" />
-    <Content Include="bin\爬取 - 副本 - 副本.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Release\" />
