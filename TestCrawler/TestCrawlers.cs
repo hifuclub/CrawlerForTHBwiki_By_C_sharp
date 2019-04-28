@@ -13,75 +13,17 @@ namespace TestCrawler
     {
         int previousTrack = 0;
         int trackInt = 0;
+        ArrayList albumInfoArray = new ArrayList();
 
 
-        public string crawler(string uri)
+        public string crawler(string url)
         {
-            ArrayList albumInfoArray = new ArrayList();
             albumInfoArray.Clear();
-            Console.Out.WriteLine(uri);
+            Console.Out.WriteLine(url);
             
             try
             {
-                // Create a request for the URL. 		
-                WebRequest request = WebRequest.Create(uri);
-                // If required by the server, set the credentials.
-                request.Credentials = CredentialCache.DefaultCredentials;
-                // Get the response.
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                // Display the status.
-                //Console.WriteLine(response.StatusDescription);
-                // Get the stream containing content returned by the server.
-                Stream dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.
-                StreamReader reader = new StreamReader(dataStream);
-                // Read the content.
-                string responseFromServer = reader.ReadToEnd();
-                // Display the content.
-                //Console.WriteLine(responseFromServer);
-                // Cleanup the streams and the response.
-                string[] songInfo;
-                string knife01 = "曲目列表</span></h2>";
-                string knife02 = "评论</span></h2>";
-                string tuneInfo;
-                try
-                {
-                    tuneInfo = cutStrings(responseFromServer, knife01, knife02)[0];
-
-                    Regex knifeForSong = new Regex("<tr><td id=\"\\d{0,3}\" class=\"info\\w{1,3}\"><b>");
-                    songInfo = knifeForSong.Split(tuneInfo);
-
-                }
-                catch (Exception)
-                {
-
-
-                    tuneInfo = cutStrings(responseFromServer, knife01, 0);
-
-                    Regex knifeForSong = new Regex("<tr><td id=\"\\d{0,3}\" class=\"info\\w{1,3}\"><b>");
-                    songInfo = knifeForSong.Split(tuneInfo);
-
-                }
-
-                //Console.Out.WriteLine("1234567890".Remove(0,5));
-                
-
-                reader.Close();
-                dataStream.Close();
-                response.Close();
-
-                string[] albumInfoString = new string[albumInfoArray.Count];
-                for(int i = 0; i < albumInfoArray.Count; i++)
-                {
-                    albumInfoString[i] = (string)albumInfoArray[i];
-                }
-                File.WriteAllLines("专辑信息.txt", albumInfoString);
-                File.WriteAllText("爬取.html", tuneInfo);
-
-                Form2 form2 = new Form2(albumInfoArray);
-                form2.Show();
-
-                return DateTime.Now+"  爬取成功";
+                string[] htmlStr = GetWikiHTML(url);
             }
             catch (Exception e)
             {
@@ -89,10 +31,63 @@ namespace TestCrawler
 
                 return DateTime.Now + "  爬取失败";
             }
+            return DateTime.Now + "  爬取成功";
         }
 
+        private string[] GetWikiHTML(string url) {
+            // Create a request for the URL. 		
+            WebRequest request = WebRequest.Create(url);
+            // If required by the server, set the credentials.
+            request.Credentials = CredentialCache.DefaultCredentials;
+            // Get the response.
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            // Display the status.
+            //Console.WriteLine(response.StatusDescription);
+            // Get the stream containing content returned by the server.
+            Stream dataStream = response.GetResponseStream();
+            // Open the stream using a StreamReader for easy access.
+            StreamReader reader = new StreamReader(dataStream);
+            // Read the content.
+            string responseFromServer = reader.ReadToEnd();
+            // Display the content.
+            //Console.WriteLine(responseFromServer);
+            // Cleanup the streams and the response.
+            string[] songInfo;
+            string knife01 = "曲目列表</span></h2>";
+            string knife02 = "评论</span></h2>";
+            string tuneInfo;
+            try
+            {
+                tuneInfo = cutStrings(responseFromServer, knife01, knife02)[0];
 
-        private void StrAssemblyLine()
+                Regex knifeForSong = new Regex("<tr><td id=\"\\d{0,3}\" class=\"info\\w{1,3}\"><b>");
+                songInfo = knifeForSong.Split(tuneInfo);
+
+            }
+            catch (Exception)
+            {
+
+
+                tuneInfo = cutStrings(responseFromServer, knife01, 0);
+
+                Regex knifeForSong = new Regex("<tr><td id=\"\\d{0,3}\" class=\"info\\w{1,3}\"><b>");
+                songInfo = knifeForSong.Split(tuneInfo);
+
+            }
+
+            //Console.Out.WriteLine("1234567890".Remove(0,5));
+
+
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+
+            return songInfo;
+        
+    }
+
+        //对字符串进行处理
+        private void StrAssemblyLine(string[] songInfo)
         {
             foreach (string s in songInfo)
             {
@@ -237,7 +232,7 @@ namespace TestCrawler
             }
 
         }
-
+        //打印歌曲信息
         private void PrintTuneInfo(bool isTurn,bool isVoice,bool isArtist,bool isOnlyComposer) {
             if (isTurn)
             {
@@ -286,9 +281,18 @@ namespace TestCrawler
                 albumInfoArray.Add(tune);
                 previousTrack = trackInt;
             }
+            string[] albumInfoString = new string[albumInfoArray.Count];
+            for (int i = 0; i < albumInfoArray.Count; i++)
+            {
+                albumInfoString[i] = (string)albumInfoArray[i];
+            }
+            File.WriteAllLines("专辑信息.txt", albumInfoString);
+            File.WriteAllText("爬取.html", tuneInfo);
 
+            Form2 form2 = new Form2(albumInfoArray);
+            form2.Show();
         }
-
+        
 
 
         public string[] cutStrings(string s, string cut1, string cut2)
