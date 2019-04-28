@@ -39,3 +39,11 @@ System.NetÊµÏÖä¯ÀÀÍøÒ³ºó»ñÈ¡Ô´Âë,Ê¹ÓÃ×Ö·û´®¶ÔÔ´Âë´¦Àí²¢ÌáÈ¡³ÉÏºÃ×ÒôÀÖ¿ÉÊ¹ÓÃµÄ¸ñÊ
 
 0.082
 ×óÏÂ½ÇÔö¼ÓÁËÖ÷´°¿ÚÖÃ¶¥¹¦ÄÜ
+
+1.01
+ÕýÊ½°æµÄ²âÊÔ°æ±¾
+ÒâÍ¼ÔÚÔ­À´µÄÃæÏò¹ý³ÌµÄ³ÌÐò¹ý¶Éµ½Ä£¿é»¯ÃæÏò¶ÔÏó»¯
+///////////////////
+1.½«crawler·½·¨²ð·Ö³Écrawler·½·¨/StrAssemblyLine·½·¨/PrintTuneInfo·½·¨.
+2.´´½¨TuneBeanÀà´æ·Åµ¥ÇúÐÅÏ¢.
+
