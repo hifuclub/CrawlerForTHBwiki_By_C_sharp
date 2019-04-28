@@ -15,7 +15,7 @@ namespace TestCrawler
         int trackInt = 0;
         ArrayList albumInfoArray = new ArrayList();
         string tuneInfo;
-
+        bool isSuccess = true;
         //主逻辑
         public string crawler(string url)
         {
@@ -35,11 +35,14 @@ namespace TestCrawler
             catch (Exception e)
             {
                 Console.WriteLine(e);
-
-                return DateTime.Now + "  爬取失败";
+                isSuccess = false;
             }
+            if (isSuccess)
+            {
+                return DateTime.Now + "  爬取成功";
+            }
+            return DateTime.Now + "  爬取失败";
 
-            return DateTime.Now + "  爬取成功";
         }
 
         //获取网页代码string并提取成曲代码
