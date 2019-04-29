@@ -101,7 +101,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 12);
             this.label4.TabIndex = 6;
-            this.label4.Text = "v1.02";
+            this.label4.Text = "v1.03";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // button3
