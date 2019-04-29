@@ -42,6 +42,7 @@ namespace TestCrawler
         private void button2_Click(object sender, EventArgs e)
         {
             textBox1.Text = "";
+            textBox1.Focus();
         }
 
         private void label4_Click(object sender, EventArgs e)
