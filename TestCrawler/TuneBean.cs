@@ -14,6 +14,7 @@ namespace TestCrawler
         public string arrange{ get; set; }
         public string composer{ get; set; }
         public string voice { get; set; }
+        public int trackInt { get; set; }
 
         public bool isVoice = false;
         public bool isTurn = true;

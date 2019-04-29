@@ -12,13 +12,13 @@ namespace TestCrawler
     public class TestCrawlers
     {
         int previousTrack = 0;
-        int trackInt = 0;
         ArrayList albumInfoArray = new ArrayList();
         string tuneInfo;
         bool isSuccess = true;
         //主逻辑
         public string crawler(string url)
         {
+            previousTrack = 1;
             albumInfoArray.Clear();
             Console.Out.WriteLine(url);
             try
@@ -104,7 +104,6 @@ namespace TestCrawler
 
             
             string tune = s;
-            int trackInt = 0;
 
 
             //track
@@ -112,8 +111,8 @@ namespace TestCrawler
             string trackString = trackReg.Match(tune).ToString();
             try
             {
-                trackInt = int.Parse(trackString);
-                Console.Out.WriteLine("轨道:" + trackInt);
+                tuneBean.trackInt = int.Parse(trackString);
+                Console.Out.WriteLine("轨道:" + tuneBean.trackInt);
             }
             catch (Exception)
             {
@@ -239,7 +238,7 @@ namespace TestCrawler
             if (tuneBean.isTurn)
             {
                 string tune;
-                if (previousTrack > trackInt)
+                if (previousTrack > tuneBean.trackInt)
                 {
                     tune = "\r\n\r\n\r\n";
                 }
@@ -250,19 +249,19 @@ namespace TestCrawler
                 if (tuneBean.isVoice)
                 {
 
-                    tune = tune + trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.voice;
+                    tune = tune + tuneBean.trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.voice;
                 }
                 else if (tuneBean.isArtist)
                 {
-                    tune = tune + trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.artist;
+                    tune = tune + tuneBean.trackInt + "." + tuneBean.title + "【歌手】" + tuneBean.artist;
                 }
                 else if (tuneBean.isOnlyComposer)
                 {
-                    tune = tune + trackInt + "." + tuneBean.title + "【作曲】" + tuneBean.composer;
+                    tune = tune + tuneBean.trackInt + "." + tuneBean.title + "【作曲】" + tuneBean.composer;
                 }
                 else
                 {
-                    tune = tune + trackInt + "." + tuneBean.title + "【编曲】" + tuneBean.arrange;
+                    tune = tune + tuneBean.trackInt + "." + tuneBean.title + "【编曲】" + tuneBean.arrange;
                 }
                 if (tuneBean.isOrigin)
                 {
@@ -281,7 +280,7 @@ namespace TestCrawler
                 tune = tune.Replace(" ～", "　～");
 
                 albumInfoArray.Add(tune);
-                previousTrack = trackInt;
+                previousTrack = tuneBean.trackInt;
             }
             string[] albumInfoString = new string[albumInfoArray.Count];
             for (int i = 0; i < albumInfoArray.Count; i++)
