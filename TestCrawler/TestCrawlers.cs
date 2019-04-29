@@ -207,6 +207,7 @@ namespace TestCrawler
                 if (Regex.IsMatch(tune, "原曲"))
                 {
                     Console.Out.WriteLine("原曲:");
+                    string onriginTurn;
                     for (; Regex.IsMatch(tune, "ogmusic");)
                     {
                         tune = cutStrings(tune, "ogmusic", 0);
@@ -214,9 +215,13 @@ namespace TestCrawler
                         if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
                         {
                             Console.Out.WriteLine(tune);
-
+                            tune = cutStrings(tune, "<div class=\"ogmusic\">", 21);
+                            onriginTurn = Regex.Split(tune, "</")[0];
                         }
-                        string onriginTurn = Regex.Split(tune, "\">")[0];
+                        else {
+                            onriginTurn = Regex.Split(tune, "\">")[0];
+                        }
+                        
                         tuneBean.origin.Add(onriginTurn);
                         Console.Out.WriteLine(onriginTurn);
                     }
