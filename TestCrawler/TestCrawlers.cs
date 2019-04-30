@@ -207,23 +207,25 @@ namespace TestCrawler
                 if (Regex.IsMatch(tune, "原曲"))
                 {
                     Console.Out.WriteLine("原曲:");
+                    tune = cutStrings(tune, "原曲", 0);
                     string onriginTurn;
+                    MatchCollection tempTune = Regex.Matches(tune, @"<div class=\""ogmusic\"" >(@!)</div>");
+
                     for (; Regex.IsMatch(tune, "ogmusic");)
                     {
-                        tune = cutStrings(tune, "ogmusic", 0);
-                        tune = cutStrings(tune, "title=\"", 7);
                         if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
                         {
                             Console.Out.WriteLine(tune);
-                            tune = cutStrings(tune, "<div class=\"ogmusic\">", 21);
-                            onriginTurn = Regex.Split(tune, "</")[0];
+                            tune = cutStrings(tune, "<div class=\"ogmusic\">", "</div>", 0, -6)[1];
+                            Console.WriteLine(tune);
+                            Console.WriteLine("////////////////////////////////////////////////////////");
                         }
                         else {
-                            onriginTurn = Regex.Split(tune, "\">")[0];
+                            break;
                         }
                         
-                        tuneBean.origin.Add(onriginTurn);
-                        Console.Out.WriteLine(onriginTurn);
+                        //tuneBean.origin.Add(tempTune);
+                        //Console.Out.WriteLine(tempTune);
                     }
                 }
                 else
@@ -297,10 +299,11 @@ namespace TestCrawler
 
 
         }
-        
+
 
         //裁剪函数
-        public string[] cutStrings(string s, string cut1, string cut2)
+        //返回值[0]保留cut1与cut2之间的string,返回值[1]返回cut2后的string
+        public string[] cutStrings(String s, string cut1, string cut2)
         {
             string[] returnString=new string[2];
             int cutLocation01 = s.IndexOf(cut1);
@@ -312,6 +315,7 @@ namespace TestCrawler
             returnString[1] = s.Remove(0, cutLocation02);
             return returnString;
         }
+
         public string[] cutStrings(string s, string cut1, string cut2, int prefixNum, int stemNum)
         {
             string[] returnString = new string[2];
@@ -321,9 +325,10 @@ namespace TestCrawler
             string cutString = s.Remove(0, cutLocation01 + prefixNum);
             cutString = cutString.Remove(cutLocation02 - cutLocation01 - stemNum - prefixNum);
             returnString[0] = cutString;
-            returnString[1] = s.Remove(0, cutLocation02);
+            returnString[1] = s.Remove(0, cutLocation02 - stemNum);
             return returnString;
         }
+        //返回cut1后的string
         public string cutStrings(string s, string cut1, int prefixNum)
         {
             int cutLocation01 = s.IndexOf(cut1);
