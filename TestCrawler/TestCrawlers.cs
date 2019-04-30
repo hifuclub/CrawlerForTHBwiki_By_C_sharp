@@ -208,25 +208,64 @@ namespace TestCrawler
                 {
                     Console.Out.WriteLine("原曲:");
                     tune = cutStrings(tune, "原曲", 0);
-                    string onriginTurn;
-                    MatchCollection tempTune = Regex.Matches(tune, @"<div class=\""ogmusic\"" >(@!)</div>");
-
-                    for (; Regex.IsMatch(tune, "ogmusic");)
+                    string[] onriginTurn;
+                    onriginTurn = Regex.Split(tune, @"<div class=""ogmusic"">");
+                    //Console.Out.WriteLine(tune);
+                    //MatchCollection tempTune = Regex.Matches(tune, @"<div class=""ogmusic"">([\s\S]+)&(!(<([\s\S]+)>))</div>");
+                    bool isFirst = true;
+                    foreach (var item in onriginTurn)
                     {
-                        if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
+                        if (!isFirst)
                         {
-                            Console.Out.WriteLine(tune);
-                            tune = cutStrings(tune, "<div class=\"ogmusic\">", "</div>", 0, -6)[1];
-                            Console.WriteLine(tune);
-                            Console.WriteLine("////////////////////////////////////////////////////////");
+                            Console.Out.WriteLine(item);
+
+                            if (!Regex.IsMatch(item, "href"))
+                            {
+                                string tempTune = Regex.Split(item, "\\>")[0];
+                                tempTune = cutStrings(tempTune, "", "title=\"", 0, -1)[1];
+                                StringBuilder tempTuneStringBuilder = new StringBuilder(tempTune);
+                                tempTuneStringBuilder = tempTuneStringBuilder.Remove(tempTuneStringBuilder.Length - 5, 5);
+                                tuneBean.origin.Add(tempTuneStringBuilder.ToString());
+                                Console.Out.WriteLine(tempTuneStringBuilder.ToString());
+                            }
+                            else {
+                                string tempTune = Regex.Split(item, "\\>")[0];
+                                tempTune = cutStrings(tempTune, "", "title=\"", 0, -7)[1];
+                                StringBuilder tempTuneStringBuilder = new StringBuilder(tempTune);
+                                tempTuneStringBuilder = tempTuneStringBuilder.Remove(tempTuneStringBuilder.Length - 1, 1);
+                                tuneBean.origin.Add(tempTuneStringBuilder.ToString());
+                                Console.Out.WriteLine(tempTuneStringBuilder.ToString());
+                            }
+
                         }
-                        else {
-                            break;
-                        }
-                        
-                        //tuneBean.origin.Add(tempTune);
-                        //Console.Out.WriteLine(tempTune);
+                        //if (Regex.IsMatch(tune, "\">"))
+                        //{
+                        //    tempTune = cutStrings(tempTune, "\">", 3);
+                        //    tempTune = Regex.Split(tempTune, "title=\"")[0];
+
+                        //}
+                        //else {
+
+                        //}
+
+                        isFirst = false;
                     }
+                    //for (; Regex.IsMatch(tune, "ogmusic");)
+                    //{
+                    //    if (Regex.IsMatch(tune, "<div class=\"ogmusic\">"))
+                    //    {
+                    //        Console.Out.WriteLine(tune);
+                    //        //tune = cutStrings(tune, "<div class=\"ogmusic\">", "</div>", 0, -6)[1];
+                    //        Console.WriteLine(tune);
+                    //        Console.WriteLine("////////////////////////////////////////////////////////");
+                    //    }
+                    //    else {
+                    //        break;
+                    //    }
+                        
+                    //    //tuneBean.origin.Add(tempTune);
+                    //    //Console.Out.WriteLine(tempTune);
+                    //}
                 }
                 else
                 {
@@ -303,7 +342,7 @@ namespace TestCrawler
 
         //裁剪函数
         //返回值[0]保留cut1与cut2之间的string,返回值[1]返回cut2后的string
-        public string[] cutStrings(String s, string cut1, string cut2)
+        public string[] cutStrings(string s, string cut1, string cut2)
         {
             string[] returnString=new string[2];
             int cutLocation01 = s.IndexOf(cut1);
