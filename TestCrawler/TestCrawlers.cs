@@ -13,6 +13,7 @@ namespace TestCrawler
     {
         int previousTrack = 0;
         ArrayList albumInfoArray = new ArrayList();
+        public static ArrayList form2ArrayList = new ArrayList();
         string tuneInfo;
         bool isSuccess = true;
         //主逻辑
@@ -31,6 +32,8 @@ namespace TestCrawler
                 }
                 Form2 form2 = new Form2(albumInfoArray);
                 form2.Show();
+                form2ArrayList.Add(form2);
+                Form1.isNoNewForm2 = false;
             }
             catch (Exception e)
             {
@@ -39,9 +42,9 @@ namespace TestCrawler
             }
             if (isSuccess)
             {
-                return DateTime.Now + "  爬取成功";
+                return "爬取成功";
             }
-            return DateTime.Now + "  爬取失败";
+            return "爬取失败";
 
         }
 

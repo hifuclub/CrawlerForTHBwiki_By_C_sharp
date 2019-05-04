@@ -15,9 +15,11 @@ namespace TestCrawler
     {
         string ls = "";
         ArrayList albumInfoArray;
+        int formNum;
         public Form2(ArrayList albumInfoArray)
         {
             InitializeComponent();
+            
             this.albumInfoArray = albumInfoArray;
             foreach (string s in albumInfoArray)
             {
@@ -44,12 +46,29 @@ namespace TestCrawler
 
         private void button2_Click(object sender, EventArgs e)
         {
-            this.Close();
+            this.Dispose();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             Clipboard.SetDataObject(textBox1.Text, true);
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void Form2_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //DialogResult result = MessageBox.Show("你确定要关闭吗！", "提示信息", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            //if (result == DialogResult.OK)
+            //{
+            //    e.Cancel = false;  //点击OK   
+            //}
+            //else
+            //{
+            //    e.Cancel = true;
+            //}
         }
     }
 }
