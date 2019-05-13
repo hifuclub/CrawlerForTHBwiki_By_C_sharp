@@ -12,12 +12,12 @@ namespace TestCrawler
     public class TestCrawlers
     {
         int previousTrack = 0;
-        ArrayList albumInfoArray = new ArrayList();
+        public static  ArrayList albumInfoArray = new ArrayList();
         public static ArrayList form2ArrayList = new ArrayList();
         string tuneInfo;
         bool isSuccess = true;
         //主逻辑
-        public string crawler(string url)
+        public int crawler(string url)
         {
             previousTrack = 1;
             albumInfoArray.Clear();
@@ -30,9 +30,7 @@ namespace TestCrawler
                     TuneBean tuneBean = StrAssemblyLine(s);
                     PrintTuneInfo(tuneBean);
                 }
-                Form2 form2 = new Form2(albumInfoArray);
-                form2.Show();
-                form2ArrayList.Add(form2);
+                
                 Form1.isNoNewForm2 = false;
             }
             catch (Exception e)
@@ -42,9 +40,9 @@ namespace TestCrawler
             }
             if (isSuccess)
             {
-                return "爬取成功";
+                return 1;
             }
-            return "爬取失败";
+            return 0;
 
         }
 
