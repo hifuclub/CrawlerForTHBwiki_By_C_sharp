@@ -104,9 +104,9 @@
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(271, 429);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(35, 12);
+            this.label4.Size = new System.Drawing.Size(41, 12);
             this.label4.TabIndex = 6;
-            this.label4.Text = "v1.05";
+            this.label4.Text = "v1.051";
             this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // button3
@@ -193,12 +193,12 @@
             this.Controls.Add(this.textBox1);
             this.Name = "Form1";
             this.Text = "爬取test";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 
         }
 
